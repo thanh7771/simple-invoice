@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* only use dark: when .dark class is present, not system preference */
+@variant dark (&:where(.dark, .dark *));
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
