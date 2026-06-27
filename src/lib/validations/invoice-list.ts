@@ -8,7 +8,46 @@ export const INVOICE_SORT_BY = [
 
 export const INVOICE_ORDERING = ["ASCENDING", "DESCENDING"] as const;
 
-export const INVOICE_STATUS = ["Paid", "Unpaid", "Overdue", "Draft"] as const;
+export const INVOICE_STATUS = [
+  "Due",
+  "Overdue",
+  "Paid",
+  "Cancelled",
+  "Rejected",
+] as const;
+
+export const INVOICE_PAGE_SIZES = [5, 10, 20] as const;
+
+const SORT_BY_LABELS: Record<(typeof INVOICE_SORT_BY)[number], string> = {
+  CREATED_DATE: "Created Date",
+  INVOICE_DATE: "Invoice Date",
+  DUE_DATE: "Due Date",
+};
+
+const ORDERING_LABELS: Record<(typeof INVOICE_ORDERING)[number], string> = {
+  DESCENDING: "Newest First",
+  ASCENDING: "Oldest First",
+};
+
+export const INVOICE_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All Statuses" },
+  ...INVOICE_STATUS.map((status) => ({ value: status, label: status })),
+];
+
+export const INVOICE_SORT_BY_OPTIONS = INVOICE_SORT_BY.map((value) => ({
+  value,
+  label: SORT_BY_LABELS[value],
+}));
+
+export const INVOICE_ORDERING_OPTIONS = INVOICE_ORDERING.map((value) => ({
+  value,
+  label: ORDERING_LABELS[value],
+}));
+
+export const INVOICE_PAGE_SIZE_OPTIONS = INVOICE_PAGE_SIZES.map((size) => ({
+  value: String(size),
+  label: `${size} per page`,
+}));
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 

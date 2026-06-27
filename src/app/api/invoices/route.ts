@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchInvoices } from "@/lib/api/invoices";
 import { createInvoice } from "@/lib/api/invoices";
 import { handleApiRouteError } from "@/lib/api/route-errors";
+import { sessionExpiredResponse } from "@/lib/api/bff-response";
 import { getAuthTokensFromRequest } from "@/lib/auth/cookies";
 import {
   buildInvoicePayload,
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
   const { accessToken, orgToken } = getAuthTokensFromRequest(request);
 
   if (!accessToken || !orgToken) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return sessionExpiredResponse();
   }
 
   const parsed = parseInvoiceListQuery(request.nextUrl.searchParams);
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
   const { accessToken, orgToken } = getAuthTokensFromRequest(request);
 
   if (!accessToken || !orgToken) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return sessionExpiredResponse();
   }
 
   try {

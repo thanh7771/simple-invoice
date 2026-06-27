@@ -1,3 +1,4 @@
+import { EXTERNAL_PATHS } from "./endpoints";
 import { getApiConfig } from "./config";
 import { readApiError } from "./errors";
 import type {
@@ -40,7 +41,7 @@ export async function fetchUserProfile(
   const { apiBaseUrl } = getApiConfig();
 
   const response = await fetch(
-    `${apiBaseUrl}/membership-service/1.0.0/users/me`,
+    `${apiBaseUrl}${EXTERNAL_PATHS.membership.me}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

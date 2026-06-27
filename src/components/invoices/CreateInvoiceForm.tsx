@@ -6,20 +6,22 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createInvoiceSchema,
+  INVOICE_CURRENCY_OPTIONS,
+  INVOICE_FORM_DEFAULTS,
   type CreateInvoiceFormData,
 } from "@/lib/validations/invoice";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
-import { handleUnauthorizedResponse } from "@/lib/client/session";
-
-const CURRENCY_OPTIONS = ["GBP", "USD", "EUR", "SGD", "VND"];
+import { APP_ROUTES } from "@/lib/api/endpoints";
+import { getErrorMessage } from "@/lib/client/get-error-message";
+import { useCreateInvoice } from "@/hooks/use-invoices";
 
 export function CreateInvoiceForm() {
   const router = useRouter();
-  const [serverError, setServerError] = useState("");
+  const createInvoice = useCreateInvoice();
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -28,46 +30,23 @@ export function CreateInvoiceForm() {
     formState: { errors },
   } = useForm<CreateInvoiceFormData>({
     resolver: zodResolver(createInvoiceSchema),
-    defaultValues: {
-      currency: "GBP",
-      quantity: 1,
-      countryCode: "VN",
-      itemUOM: "EA",
-    },
+    defaultValues: INVOICE_FORM_DEFAULTS,
   });
 
-  async function onSubmit(data: CreateInvoiceFormData) {
-    setServerError("");
+  function onSubmit(data: CreateInvoiceFormData) {
     setSuccess(false);
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/invoices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (await handleUnauthorizedResponse(response, router)) {
-        return;
-      }
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setServerError(result.message ?? "Failed to create invoice");
-        return;
-      }
-
-      setSuccess(true);
-      reset();
-      setTimeout(() => router.push("/invoices"), 2000);
-    } catch {
-      setServerError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    createInvoice.mutate(data, {
+      onSuccess: () => {
+        setSuccess(true);
+        reset();
+        setTimeout(() => router.push(APP_ROUTES.invoices), 2000);
+      },
+    });
   }
+
+  const serverError = createInvoice.isError
+    ? getErrorMessage(createInvoice.error, "Failed to create invoice")
+    : "";
 
   return (
     <div className="space-y-6">
@@ -83,7 +62,11 @@ export function CreateInvoiceForm() {
         />
       )}
       {serverError && (
-        <Alert type="error" message={serverError} onDismiss={() => setServerError("")} />
+        <Alert
+          type="error"
+          message={serverError}
+          onDismiss={() => createInvoice.reset()}
+        />
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
@@ -99,20 +82,12 @@ export function CreateInvoiceForm() {
               error={errors.invoiceReference?.message}
               {...register("invoiceReference")}
             />
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">Currency *</label>
-              <select
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                {...register("currency")}
-              >
-                {CURRENCY_OPTIONS.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              {errors.currency && (
-                <p className="text-sm text-red-600">{errors.currency.message}</p>
-              )}
-            </div>
+            <Select
+              label="Currency *"
+              options={INVOICE_CURRENCY_OPTIONS}
+              error={errors.currency?.message}
+              {...register("currency")}
+            />
             <Input
               label="Invoice Date *"
               type="date"
@@ -247,13 +222,13 @@ export function CreateInvoiceForm() {
         </FormSection>
 
         <div className="flex gap-3">
-          <Button type="submit" loading={loading}>
+          <Button type="submit" loading={createInvoice.isPending}>
             Create Invoice
           </Button>
           <Button
             type="button"
             variant="secondary"
-            onClick={() => router.push("/invoices")}
+            onClick={() => router.push(APP_ROUTES.invoices)}
           >
             Cancel
           </Button>

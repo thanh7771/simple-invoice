@@ -38,7 +38,7 @@ describe("parseInvoiceListQuery", () => {
         ordering: "ASCENDING",
         pageNum: "2",
         pageSize: "20",
-        status: "Paid",
+        status: "Due",
         keyword: "INV123",
         fromDate: "2024-01-01",
         toDate: "2024-12-31",
@@ -46,6 +46,13 @@ describe("parseInvoiceListQuery", () => {
     );
 
     expect(result.success).toBe(true);
+  });
+
+  it("accepts all API status values", () => {
+    for (const status of ["Due", "Overdue", "Paid", "Cancelled", "Rejected"]) {
+      const result = parseInvoiceListQuery(new URLSearchParams({ status }));
+      expect(result.success).toBe(true);
+    }
   });
 
   it("rejects non-numeric pageNum", () => {

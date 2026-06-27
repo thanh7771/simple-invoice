@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+export const INVOICE_CURRENCIES = ["GBP", "USD", "EUR", "SGD", "VND"] as const;
+
+export const INVOICE_CURRENCY_OPTIONS = INVOICE_CURRENCIES.map((value) => ({
+  value,
+  label: value,
+}));
+
+export const INVOICE_FORM_DEFAULTS = {
+  currency: "GBP",
+  quantity: 1,
+  countryCode: "VN",
+  itemUOM: "EA",
+} as const;
+
 export const createInvoiceSchema = z
   .object({
     invoiceNumber: z

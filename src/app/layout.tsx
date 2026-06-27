@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,9 +27,13 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased light`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
-        {children}
+      <body
+        className="min-h-full flex flex-col bg-gray-50 text-gray-900"
+        suppressHydrationWarning
+      >
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

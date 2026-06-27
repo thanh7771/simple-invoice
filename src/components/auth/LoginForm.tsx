@@ -1,18 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "@/lib/validations/login";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
+import { useLogin } from "@/hooks/use-auth";
+import { getErrorMessage } from "@/lib/client/get-error-message";
 
 export function LoginForm() {
-  const router = useRouter();
-  const [serverError, setServerError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const login = useLogin();
 
   const {
     register,
@@ -22,32 +20,13 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  async function onSubmit(data: LoginFormData) {
-    setServerError("");
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        setServerError(result.message ?? "Login failed. Please try again.");
-        return;
-      }
-
-      router.push("/invoices");
-      router.refresh();
-    } catch {
-      setServerError("Network error. Please check your connection.");
-    } finally {
-      setLoading(false);
-    }
+  function onSubmit(data: LoginFormData) {
+    login.mutate(data);
   }
+
+  const serverError = login.isError
+    ? getErrorMessage(login.error, "Login failed. Please try again.")
+    : "";
 
   return (
     <div className="w-full max-w-md">
@@ -61,7 +40,11 @@ export function LoginForm() {
 
         {serverError && (
           <div className="mb-4">
-            <Alert type="error" message={serverError} onDismiss={() => setServerError("")} />
+            <Alert
+              type="error"
+              message={serverError}
+              onDismiss={() => login.reset()}
+            />
           </div>
         )}
 
@@ -80,7 +63,7 @@ export function LoginForm() {
             error={errors.password?.message}
             {...register("password")}
           />
-          <Button type="submit" loading={loading} className="w-full">
+          <Button type="submit" loading={login.isPending} className="w-full">
             Sign In
           </Button>
         </form>

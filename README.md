@@ -18,10 +18,6 @@ Put the sandbox credentials from Appendix A into `.env.local`. Copy from `.env.e
 
 Cookie `Secure` flag turns on automatically in production. For local HTTPS, add `COOKIE_SECURE=true` to `.env.local` (see `.env.example`).
 
-Test account:
-- username: `94756921275`
-- password: `Password@12345`
-
 Other commands: `npm run build`, `npm start`, `npm test`
 
 ## Notes on the implementation
@@ -38,4 +34,4 @@ Most of the code is under `src/app` (pages + API routes) and `src/lib` (API clie
 
 ## Things I assumed
 
-Only one org token (`memberships[0]`). One line item per invoice. Status filter uses whatever the API returns (Paid, Unpaid, etc.). Cookie expiry is 1 hour.
+Only one org token (`memberships[0]`). One line item per invoice. Status filter: Due, Overdue, Paid, Cancelled, Rejected. Cookie expiry is 1 hour.

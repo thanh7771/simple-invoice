@@ -1,3 +1,4 @@
+import { EXTERNAL_PATHS } from "./endpoints";
 import { getApiConfig } from "./config";
 import { readApiError } from "./errors";
 import type {
@@ -37,7 +38,7 @@ export async function fetchInvoices(
   if (params.keyword) searchParams.set("keyword", params.keyword);
 
   const response = await fetch(
-    `${apiBaseUrl}/invoice-service/1.0.0/invoices?${searchParams}`,
+    `${apiBaseUrl}${EXTERNAL_PATHS.invoices.root}?${searchParams}`,
     { headers: buildAuthHeaders(accessToken, orgToken) }
   );
 
@@ -63,7 +64,7 @@ export async function createInvoice(
   const { apiBaseUrl } = getApiConfig();
 
   const response = await fetch(
-    `${apiBaseUrl}/invoice-service/1.0.0/invoices`,
+    `${apiBaseUrl}${EXTERNAL_PATHS.invoices.root}`,
     {
       method: "POST",
       headers: {
